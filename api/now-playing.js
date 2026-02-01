@@ -105,12 +105,19 @@ async function fetchFIP() {
     currentTrack = steps[items[0]];
   }
 
-  // Build image URL
+  // Build image URL - visual can be full URL or relative path
   const getImageUrl = (track) => {
-    if (!track?.visual) return null;
-    const visual = track.visual;
+    if (!track) return null;
+    // Try visual field first
+    const visual = track.visual || track.visuals?.webThumbnail;
+    if (!visual) return null;
+    // If already a full URL, use as-is
     if (visual.startsWith('http')) return visual;
-    return `https://www.radiofrance.fr${visual}`;
+    // Otherwise prepend Radio France CDN
+    if (visual.startsWith('/')) {
+      return `https://www.radiofrance.fr${visual}`;
+    }
+    return `https://www.radiofrance.fr/${visual}`;
   };
 
   return {
@@ -167,19 +174,8 @@ async function fetchRadioParadise() {
 
   const data = await response.json();
 
-  // Build cover URL - Radio Paradise uses different formats
-  let coverUrl = null;
-  if (data.cover) {
-    // Cover can be a full path or relative
-    if (data.cover.startsWith('http')) {
-      coverUrl = data.cover;
-    } else {
-      coverUrl = `https://img.radioparadise.com${data.cover.startsWith('/') ? '' : '/'}${data.cover}`;
-    }
-  } else if (data.album && data.asin) {
-    // Fallback to album art via ASIN
-    coverUrl = `https://img.radioparadise.com/covers/l/${data.asin}.jpg`;
-  }
+  // Use cover_med or cover directly from API response
+  const coverUrl = data.cover_med || data.cover || data.cover_small || null;
 
   return {
     nowPlaying: data ? {
@@ -187,7 +183,7 @@ async function fetchRadioParadise() {
       title: data.title || 'Unknown Track',
       image: coverUrl
     } : null,
-    recentTracks: []
+    recentTracks: [] // API only provides current track
   };
 }
 
