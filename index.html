@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#1a1a2e">
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
   <meta name="googlebot" content="noindex, nofollow">
-  <title>BBC Radio 6 Music</title>
+  <title>World Radio</title>
 
   <!-- PWA -->
   <link rel="manifest" href="/manifest.json">
@@ -40,10 +40,47 @@
       gap: 24px;
     }
 
+    /* Station Selector */
+    .station-selector {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 0;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .station-selector::-webkit-scrollbar {
+      display: none;
+    }
+
+    .station-chip {
+      flex-shrink: 0;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .station-chip:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .station-chip.active {
+      background: var(--station-color, #e94560);
+      color: #fff;
+    }
+
     /* Player */
     .player {
       text-align: center;
-      padding-top: 20px;
+      padding-top: 10px;
     }
 
     .artwork-container {
@@ -104,7 +141,7 @@
       50% { opacity: 0.3; }
     }
 
-    /* Star button - no background */
+    /* Star button */
     .fav-btn {
       position: absolute;
       bottom: 16px;
@@ -160,20 +197,20 @@
       height: 72px;
       border-radius: 50%;
       border: none;
-      background: linear-gradient(135deg, #e94560, #ff6b6b);
+      background: linear-gradient(135deg, var(--station-color, #e94560), var(--station-color-light, #ff6b6b));
       color: #fff;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto;
-      box-shadow: 0 8px 30px rgba(233, 69, 96, 0.4);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .play-btn:hover {
       transform: scale(1.05);
-      box-shadow: 0 12px 40px rgba(233, 69, 96, 0.5);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
     }
 
     .play-btn:active { transform: scale(0.95); }
@@ -303,7 +340,10 @@
       background: rgba(255, 255, 255, 0.05);
       border-radius: 20px;
       padding: 20px;
+      display: none;
     }
+
+    .schedule.visible { display: block; }
 
     .current-show {
       display: flex;
@@ -373,7 +413,7 @@
       color: rgba(255, 255, 255, 0.4);
     }
 
-    /* Favorites - same style as recent tracks */
+    /* Favorites */
     .favorites {
       background: rgba(255, 255, 255, 0.05);
       border-radius: 20px;
@@ -484,10 +524,13 @@
 </head>
 <body>
   <div class="container">
+    <!-- Station Selector -->
+    <div class="station-selector" id="stationSelector"></div>
+
     <!-- Player -->
     <div class="player">
       <div class="artwork-container">
-        <img class="artwork" id="artwork" src="https://sounds.files.bbci.co.uk/3.9.4/networks/bbc_6music/blocks-colour_600x600.png" alt="BBC 6 Music">
+        <img class="artwork" id="artwork" src="" alt="Station">
         <div class="live-badge" id="liveBadge">
           <span class="live-dot"></span>
           <span>Live</span>
@@ -499,7 +542,7 @@
       </div>
 
       <div class="track-info">
-        <p class="track-title" id="trackTitle">BBC Radio 6 Music</p>
+        <p class="track-title" id="trackTitle">Select a station</p>
         <p class="track-artist" id="trackArtist">Tap play to start</p>
       </div>
 
@@ -508,10 +551,7 @@
         <svg class="pause-icon" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
       </button>
 
-      <audio id="audioPlayer" preload="none">
-        <source src="https://as-hls-ww-live.akamaized.net/pool_81827798/live/ww/bbc_6music/bbc_6music.isml/bbc_6music-audio=320000.m3u8" type="application/x-mpegURL">
-        <source src="https://as-hls-ww-live.akamaized.net/pool_81827798/live/ww/bbc_6music/bbc_6music.isml/bbc_6music-audio=96000.m3u8" type="application/x-mpegURL">
-      </audio>
+      <audio id="audioPlayer" preload="none"></audio>
     </div>
 
     <!-- Recent Tracks -->
@@ -540,7 +580,103 @@
   </div>
 
   <script>
+    // Station Configuration
+    const stations = [
+      {
+        id: 'bbc_6music',
+        name: 'BBC 6 Music',
+        country: 'UK',
+        color: '#e94560',
+        colorLight: '#ff6b6b',
+        artwork: 'https://sounds.files.bbci.co.uk/3.9.4/networks/bbc_6music/blocks-colour_600x600.png',
+        streams: {
+          high: 'https://as-hls-ww-live.akamaized.net/pool_81827798/live/ww/bbc_6music/bbc_6music.isml/bbc_6music-audio=320000.m3u8',
+          low: 'https://as-hls-ww-live.akamaized.net/pool_81827798/live/ww/bbc_6music/bbc_6music.isml/bbc_6music-audio=96000.m3u8'
+        },
+        hasSchedule: true
+      },
+      {
+        id: 'fip',
+        name: 'FIP',
+        country: 'France',
+        color: '#e84e10',
+        colorLight: '#ff7040',
+        artwork: 'https://www.radiofrance.fr/s3/cruiser-production/2022/05/0bab0094-9798-4e0e-9cd1-b8e9a0347825/200x200_fip-cover.jpg',
+        streams: {
+          high: 'https://icecast.radiofrance.fr/fip-hifi.aac',
+          low: 'https://direct.fipradio.fr/live/fip-midfi.mp3'
+        },
+        hasSchedule: false
+      },
+      {
+        id: 'kexp',
+        name: 'KEXP',
+        country: 'Seattle',
+        color: '#1a1a1a',
+        colorLight: '#444444',
+        artwork: 'https://www.kexp.org/static/assets/img/og-kexp.jpg',
+        streams: {
+          high: 'https://kexp.streamguys1.com/kexp160.aac',
+          low: 'https://kexp.streamguys1.com/kexp64.aac'
+        },
+        hasSchedule: false
+      },
+      {
+        id: 'radio_paradise',
+        name: 'Radio Paradise',
+        country: 'California',
+        color: '#2e7d32',
+        colorLight: '#4caf50',
+        artwork: 'https://img.radioparadise.com/covers/l/B000002MXK.jpg',
+        streams: {
+          high: 'https://stream.radioparadise.com/aac-320',
+          low: 'https://stream.radioparadise.com/aac-128'
+        },
+        hasSchedule: false
+      },
+      {
+        id: 'nts_1',
+        name: 'NTS 1',
+        country: 'London',
+        color: '#000000',
+        colorLight: '#333333',
+        artwork: 'https://www.nts.live/assets/img/nts.png',
+        streams: {
+          high: 'https://stream-relay-geo.ntslive.net/stream',
+          low: 'https://stream-relay-geo.ntslive.net/stream'
+        },
+        hasSchedule: true
+      },
+      {
+        id: 'nts_2',
+        name: 'NTS 2',
+        country: 'London',
+        color: '#000000',
+        colorLight: '#333333',
+        artwork: 'https://www.nts.live/assets/img/nts.png',
+        streams: {
+          high: 'https://stream-relay-geo.ntslive.net/stream2',
+          low: 'https://stream-relay-geo.ntslive.net/stream2'
+        },
+        hasSchedule: true
+      },
+      {
+        id: 'rne_radio3',
+        name: 'RNE Radio 3',
+        country: 'Spain',
+        color: '#d32f2f',
+        colorLight: '#ef5350',
+        artwork: 'https://img2.rtve.es/css/rtve.commons.css/rtve_radio/radio3.png',
+        streams: {
+          high: 'https://ztnr.rtve.es/ztnr/rne3.m3u8',
+          low: 'https://195.55.74.217/rtve/radio3.mp3'
+        },
+        hasSchedule: false
+      }
+    ];
+
     // Elements
+    const stationSelector = document.getElementById('stationSelector');
     const audio = document.getElementById('audioPlayer');
     const artwork = document.getElementById('artwork');
     const liveBadge = document.getElementById('liveBadge');
@@ -548,6 +684,7 @@
     const trackArtist = document.getElementById('trackArtist');
     const playBtn = document.getElementById('playBtn');
     const favBtn = document.getElementById('favBtn');
+    const scheduleCard = document.getElementById('scheduleCard');
     const scheduleLoading = document.getElementById('scheduleLoading');
     const scheduleContent = document.getElementById('scheduleContent');
     const currentShowEl = document.getElementById('currentShow');
@@ -557,10 +694,86 @@
     const recentTracksCard = document.getElementById('recentTracksCard');
     const recentTracksList = document.getElementById('recentTracksList');
 
-    const defaultArtwork = 'https://sounds.files.bbci.co.uk/3.9.4/networks/bbc_6music/blocks-colour_600x600.png';
+    // State
+    let currentStation = null;
     let isPlaying = false;
+    let fetchInterval = null;
+    let currentTrack = { artist: '', title: '' };
+    let currentShow = null;
+    let favorites = JSON.parse(localStorage.getItem('worldradio_favorites') || '[]');
 
-    // Format time range in browser's timezone
+    // Initialize station selector
+    function initStationSelector() {
+      stationSelector.innerHTML = stations.map(station => `
+        <button class="station-chip" data-id="${station.id}" style="--station-color: ${station.color}">
+          ${station.name}
+        </button>
+      `).join('');
+
+      stationSelector.querySelectorAll('.station-chip').forEach(chip => {
+        chip.addEventListener('click', () => selectStation(chip.dataset.id));
+      });
+
+      // Select first station by default
+      const savedStation = localStorage.getItem('worldradio_station') || stations[0].id;
+      selectStation(savedStation);
+    }
+
+    // Select station
+    function selectStation(stationId) {
+      const station = stations.find(s => s.id === stationId);
+      if (!station) return;
+
+      const wasPlaying = isPlaying;
+
+      // Stop current playback
+      if (isPlaying) {
+        audio.pause();
+      }
+
+      currentStation = station;
+      localStorage.setItem('worldradio_station', stationId);
+
+      // Update UI
+      document.documentElement.style.setProperty('--station-color', station.color);
+      document.documentElement.style.setProperty('--station-color-light', station.colorLight);
+
+      stationSelector.querySelectorAll('.station-chip').forEach(chip => {
+        chip.classList.toggle('active', chip.dataset.id === stationId);
+      });
+
+      // Update artwork and info
+      artwork.src = station.artwork;
+      trackTitle.textContent = station.name;
+      trackArtist.textContent = 'Tap play to start';
+      currentTrack = { artist: '', title: '' };
+      currentShow = null;
+
+      // Update audio source
+      audio.innerHTML = `
+        <source src="${station.streams.high}" type="audio/aac">
+        <source src="${station.streams.low}" type="audio/mpeg">
+      `;
+      audio.load();
+
+      // Reset UI sections
+      recentTracksCard.classList.remove('visible');
+      scheduleCard.classList.toggle('visible', station.hasSchedule);
+      scheduleLoading.style.display = station.hasSchedule ? 'block' : 'none';
+      scheduleContent.style.display = 'none';
+
+      // Fetch schedule if available
+      if (station.hasSchedule) {
+        fetchSchedule();
+      }
+
+      // Resume playback if was playing
+      if (wasPlaying) {
+        audio.play();
+      }
+    }
+
+    // Format time range
     function formatTimeRange(startISO, endISO) {
       const options = { hour: '2-digit', minute: '2-digit', hour12: false };
       const start = new Date(startISO);
@@ -569,10 +782,6 @@
       const endStr = end.toLocaleTimeString(undefined, options);
       return `${startStr} - ${endStr}`;
     }
-    let fetchInterval = null;
-    let currentTrack = { artist: '', title: '' };
-    let currentShow = null;
-    let favorites = JSON.parse(localStorage.getItem('radio6_favorites') || '[]');
 
     // Play/Pause
     playBtn.addEventListener('click', () => {
@@ -603,8 +812,10 @@
 
     // Fetch Now Playing
     async function fetchNowPlaying() {
+      if (!currentStation) return;
+
       try {
-        const response = await fetch('/api/now-playing?t=' + Date.now());
+        const response = await fetch(`/api/now-playing?station=${currentStation.id}&t=${Date.now()}`);
         if (!response.ok) throw new Error('API error');
         const data = await response.json();
 
@@ -616,35 +827,39 @@
             trackTitle.textContent = title || 'Unknown Track';
             trackArtist.textContent = artist || 'Unknown Artist';
 
-            // Use track image, or fallback to show image
             if (image) {
               artwork.src = image;
             } else if (currentShow?.image) {
               artwork.src = currentShow.image;
+            } else {
+              artwork.src = currentStation.artwork;
             }
 
             updateFavButton();
             updateMediaSession();
           }
         } else if (currentShow) {
-          // No track data - show program info
           showProgramInfo();
+        } else {
+          trackTitle.textContent = currentStation.name;
+          trackArtist.textContent = 'Live';
+          artwork.src = currentStation.artwork;
         }
 
-        // Recent tracks - use show image as fallback
+        // Recent tracks
         if (data.recentTracks?.length > 0) {
           recentTracksCard.classList.add('visible');
           recentTracksList.innerHTML = data.recentTracks.map(track => {
             const isFav = favorites.some(f => f.artist === track.artist && f.title === track.title);
             return `
             <div class="recent-track">
-              <img class="recent-track-image" src="${track.image || currentShow?.image || defaultArtwork}" alt="">
+              <img class="recent-track-image" src="${track.image || currentShow?.image || currentStation.artwork}" alt="">
               <div class="recent-track-info">
                 <p class="recent-track-title">${track.title}</p>
                 <p class="recent-track-artist">${track.artist}</p>
               </div>
               <div class="recent-track-actions">
-                <button class="recent-track-btn star ${isFav ? 'active' : ''}" data-artist="${track.artist}" data-title="${track.title}" data-image="${track.image || currentShow?.image || defaultArtwork}" title="Save">
+                <button class="recent-track-btn star ${isFav ? 'active' : ''}" data-artist="${track.artist}" data-title="${track.title}" data-image="${track.image || currentShow?.image || currentStation.artwork}" title="Save">
                   <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 </button>
                 <button class="recent-track-btn spotify" data-artist="${track.artist}" data-title="${track.title}" title="Open in Spotify">
@@ -654,12 +869,10 @@
             </div>
           `}).join('');
 
-          // Attach event listeners for recent tracks
           attachRecentTrackListeners();
         }
       } catch (error) {
         console.log('Fetch error:', error);
-        // On error, show program info if available
         if (currentShow) {
           showProgramInfo();
         }
@@ -667,11 +880,11 @@
     }
 
     function showProgramInfo() {
-      if (!currentShow) return;
+      if (!currentShow || !currentStation) return;
       currentTrack = { artist: '', title: currentShow.title };
       trackTitle.textContent = currentShow.title;
-      trackArtist.textContent = currentShow.formattedTime;
-      artwork.src = currentShow.image || defaultArtwork;
+      trackArtist.textContent = currentShow.formattedTime || currentStation.name;
+      artwork.src = currentShow.image || currentStation.artwork;
       updateFavButton();
     }
 
@@ -689,8 +902,10 @@
 
     // Schedule
     async function fetchSchedule() {
+      if (!currentStation || !currentStation.hasSchedule) return;
+
       try {
-        const response = await fetch('/api/schedule?t=' + Date.now());
+        const response = await fetch(`/api/schedule?station=${currentStation.id}&t=${Date.now()}`);
         if (!response.ok) throw new Error('API error');
         const data = await response.json();
 
@@ -702,7 +917,7 @@
           currentShow.formattedTime = formatTimeRange(currentShow.startTime, currentShow.endTime);
           const show = data.currentShow;
           currentShowEl.innerHTML = `
-            <img class="current-show-image" src="${show.image || defaultArtwork}" alt="">
+            <img class="current-show-image" src="${show.image || currentStation.artwork}" alt="">
             <div class="current-show-info">
               <p class="current-show-title">${show.title}</p>
               <p class="current-show-time">${currentShow.formattedTime}</p>
@@ -719,7 +934,7 @@
         if (data.upcomingShows?.length > 0) {
           upcomingShowsEl.innerHTML = data.upcomingShows.slice(0, 2).map(show => `
             <div class="upcoming-show">
-              <img class="upcoming-show-image" src="${show.image || defaultArtwork}" alt="">
+              <img class="upcoming-show-image" src="${show.image || currentStation.artwork}" alt="">
               <div class="upcoming-show-info">
                 <p class="upcoming-show-title">${show.title}</p>
                 <p class="upcoming-show-time">${formatTimeRange(show.startTime, show.endTime)}</p>
@@ -734,7 +949,6 @@
 
     // Favorites
     favBtn.addEventListener('click', () => {
-      // Don't allow saving program info, only tracks
       if (!currentTrack.artist || !currentTrack.title) return;
 
       const index = favorites.findIndex(f => f.artist === currentTrack.artist && f.title === currentTrack.title);
@@ -743,6 +957,7 @@
         favorites.unshift({
           ...currentTrack,
           image: artwork.src,
+          station: currentStation?.id,
           addedAt: Date.now()
         });
         if (favorites.length > 50) favorites.pop();
@@ -750,13 +965,12 @@
         favorites.splice(index, 1);
       }
 
-      localStorage.setItem('radio6_favorites', JSON.stringify(favorites));
+      localStorage.setItem('worldradio_favorites', JSON.stringify(favorites));
       updateFavButton();
       renderFavorites();
     });
 
     function updateFavButton() {
-      // Only show active star if it's a real track (has artist)
       const isFav = currentTrack.artist && favorites.some(f => f.artist === currentTrack.artist && f.title === currentTrack.title);
       favBtn.querySelector('.star-empty').style.display = isFav ? 'none' : 'block';
       favBtn.querySelector('.star-full').style.display = isFav ? 'block' : 'none';
@@ -771,19 +985,24 @@
       const index = favorites.findIndex(f => f.artist === artist && f.title === title);
 
       if (index === -1) {
-        favorites.unshift({ artist, title, image: image || defaultArtwork, addedAt: Date.now() });
+        favorites.unshift({
+          artist,
+          title,
+          image: image || currentStation?.artwork,
+          station: currentStation?.id,
+          addedAt: Date.now()
+        });
         if (favorites.length > 50) favorites.pop();
       } else {
         favorites.splice(index, 1);
       }
 
-      localStorage.setItem('radio6_favorites', JSON.stringify(favorites));
+      localStorage.setItem('worldradio_favorites', JSON.stringify(favorites));
       updateFavButton();
       renderFavorites();
     }
 
     function attachRecentTrackListeners() {
-      // Star buttons
       recentTracksList.querySelectorAll('.recent-track-btn.star').forEach(btn => {
         btn.addEventListener('click', () => {
           const { artist, title, image } = btn.dataset;
@@ -792,7 +1011,6 @@
         });
       });
 
-      // Spotify buttons
       recentTracksList.querySelectorAll('.recent-track-btn.spotify').forEach(btn => {
         btn.addEventListener('click', () => {
           openSpotify(btn.dataset.artist, btn.dataset.title);
@@ -809,7 +1027,7 @@
       favoritesCard.classList.add('has-items');
       favList.innerHTML = favorites.map((fav, i) => `
         <div class="fav-item">
-          <img class="fav-item-image" src="${fav.image || defaultArtwork}" alt="">
+          <img class="fav-item-image" src="${fav.image || currentStation?.artwork}" alt="">
           <div class="fav-item-info">
             <p class="fav-item-title">${fav.title}</p>
             <p class="fav-item-artist">${fav.artist}</p>
@@ -825,17 +1043,15 @@
         </div>
       `).join('');
 
-      // Star buttons (remove from favorites)
       favList.querySelectorAll('.fav-item-btn.star').forEach(btn => {
         btn.addEventListener('click', () => {
           favorites.splice(parseInt(btn.dataset.index), 1);
-          localStorage.setItem('radio6_favorites', JSON.stringify(favorites));
+          localStorage.setItem('worldradio_favorites', JSON.stringify(favorites));
           updateFavButton();
           renderFavorites();
         });
       });
 
-      // Spotify buttons
       favList.querySelectorAll('.fav-item-btn.spotify').forEach(btn => {
         btn.addEventListener('click', () => {
           openSpotify(btn.dataset.artist, btn.dataset.title);
@@ -843,13 +1059,13 @@
       });
     }
 
-    // Media Session (Lock Screen Controls)
+    // Media Session
     function updateMediaSession() {
-      if ('mediaSession' in navigator) {
+      if ('mediaSession' in navigator && currentStation) {
         navigator.mediaSession.metadata = new MediaMetadata({
-          title: currentTrack.title || 'BBC Radio 6 Music',
+          title: currentTrack.title || currentStation.name,
           artist: currentTrack.artist || 'Live',
-          album: 'BBC Radio 6 Music',
+          album: currentStation.name,
           artwork: [{ src: artwork.src, sizes: '512x512', type: 'image/png' }]
         });
 
@@ -859,8 +1075,7 @@
     }
 
     // Init
-    fetchSchedule();
-    setInterval(fetchSchedule, 120000);
+    initStationSelector();
     renderFavorites();
   </script>
 </body>

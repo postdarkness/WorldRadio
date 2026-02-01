@@ -1,7 +1,7 @@
 {
-  "name": "BBC Radio 6 Music",
-  "short_name": "Radio 6",
-  "description": "BBC Radio 6 Music - Music beyond the mainstream",
+  "name": "World Radio",
+  "short_name": "WorldRadio",
+  "description": "Stream the best radio stations from around the world",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1a2e",
