@@ -40,41 +40,70 @@
       gap: 24px;
     }
 
-    /* Station Selector */
+    /* Station Selector - Horizontal Cards */
     .station-selector {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       overflow-x: auto;
-      padding: 4px 0;
+      padding: 8px 4px;
+      margin: -4px;
       scrollbar-width: none;
       -ms-overflow-style: none;
+      scroll-snap-type: x mandatory;
     }
 
     .station-selector::-webkit-scrollbar {
       display: none;
     }
 
-    .station-chip {
+    .station-card {
       flex-shrink: 0;
-      padding: 8px 16px;
-      border-radius: 20px;
-      border: none;
-      background: rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.7);
-      font-size: 0.8rem;
-      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 16px;
+      border: 2px solid transparent;
+      background: rgba(255, 255, 255, 0.08);
       cursor: pointer;
       transition: all 0.2s ease;
+      scroll-snap-align: start;
+    }
+
+    .station-card:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .station-card.active {
+      border-color: var(--station-color, #e94560);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .station-card-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #fff;
+    }
+
+    .station-card-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .station-card-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
       white-space: nowrap;
     }
 
-    .station-chip:hover {
-      background: rgba(255, 255, 255, 0.15);
-    }
-
-    .station-chip.active {
-      background: var(--station-color, #e94560);
-      color: #fff;
+    .station-card-country {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.5);
+      white-space: nowrap;
     }
 
     /* Player */
@@ -97,6 +126,7 @@
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
       transition: transform 0.4s ease;
       object-fit: cover;
+      background: #2a2a4e;
     }
 
     .artwork.playing {
@@ -259,6 +289,7 @@
       height: 44px;
       border-radius: 8px;
       object-fit: cover;
+      background: #2a2a4e;
     }
 
     .recent-track-info { flex: 1; min-width: 0; }
@@ -356,6 +387,7 @@
       height: 56px;
       border-radius: 12px;
       object-fit: cover;
+      background: #2a2a4e;
     }
 
     .current-show-info { flex: 1; min-width: 0; }
@@ -396,6 +428,7 @@
       border-radius: 8px;
       object-fit: cover;
       opacity: 0.7;
+      background: #2a2a4e;
     }
 
     .upcoming-show-info { flex: 1; min-width: 0; }
@@ -445,6 +478,7 @@
       height: 44px;
       border-radius: 8px;
       object-fit: cover;
+      background: #2a2a4e;
     }
 
     .fav-item-info { flex: 1; min-width: 0; }
@@ -580,15 +614,17 @@
   </div>
 
   <script>
-    // Station Configuration
+    // Station Configuration with working image URLs
     const stations = [
       {
         id: 'bbc_6music',
         name: 'BBC 6 Music',
         country: 'UK',
+        flag: '🇬🇧',
         color: '#e94560',
         colorLight: '#ff6b6b',
-        artwork: 'https://sounds.files.bbci.co.uk/3.9.4/networks/bbc_6music/blocks-colour_600x600.png',
+        logo: 'https://ichef.bbci.co.uk/images/ic/256x256/p01lhyc0.png',
+        artwork: 'https://ichef.bbci.co.uk/images/ic/480x480/p01lhyc0.png',
         streams: {
           high: 'https://as-hls-ww-live.akamaized.net/pool_81827798/live/ww/bbc_6music/bbc_6music.isml/bbc_6music-audio=320000.m3u8',
           low: 'https://as-hls-ww-live.akamaized.net/pool_81827798/live/ww/bbc_6music/bbc_6music.isml/bbc_6music-audio=96000.m3u8'
@@ -599,9 +635,11 @@
         id: 'fip',
         name: 'FIP',
         country: 'France',
+        flag: '🇫🇷',
         color: '#e84e10',
         colorLight: '#ff7040',
-        artwork: 'https://www.radiofrance.fr/s3/cruiser-production/2022/05/0bab0094-9798-4e0e-9cd1-b8e9a0347825/200x200_fip-cover.jpg',
+        logo: 'https://upload.wikimedia.org/wikipedia/fr/thumb/3/35/FIP_logo_2021.svg/200px-FIP_logo_2021.svg.png',
+        artwork: 'https://upload.wikimedia.org/wikipedia/fr/thumb/3/35/FIP_logo_2021.svg/400px-FIP_logo_2021.svg.png',
         streams: {
           high: 'https://icecast.radiofrance.fr/fip-hifi.aac',
           low: 'https://direct.fipradio.fr/live/fip-midfi.mp3'
@@ -612,9 +650,11 @@
         id: 'kexp',
         name: 'KEXP',
         country: 'Seattle',
+        flag: '🇺🇸',
         color: '#1a1a1a',
         colorLight: '#444444',
-        artwork: 'https://www.kexp.org/static/assets/img/og-kexp.jpg',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/KEXP_logo.svg/200px-KEXP_logo.svg.png',
+        artwork: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/KEXP_logo.svg/400px-KEXP_logo.svg.png',
         streams: {
           high: 'https://kexp.streamguys1.com/kexp160.aac',
           low: 'https://kexp.streamguys1.com/kexp64.aac'
@@ -625,12 +665,29 @@
         id: 'radio_paradise',
         name: 'Radio Paradise',
         country: 'California',
+        flag: '🇺🇸',
         color: '#2e7d32',
         colorLight: '#4caf50',
-        artwork: 'https://img.radioparadise.com/covers/l/B000002MXK.jpg',
+        logo: 'https://radioparadise.com/graphics/fb_logo.png',
+        artwork: 'https://radioparadise.com/graphics/fb_logo.png',
         streams: {
-          high: 'https://stream.radioparadise.com/aac-320',
-          low: 'https://stream.radioparadise.com/aac-128'
+          high: 'https://stream-uk1.radioparadise.com/aac-320',
+          low: 'https://stream-uk1.radioparadise.com/aac-128'
+        },
+        hasSchedule: false
+      },
+      {
+        id: 'worldwide_fm',
+        name: 'Worldwide FM',
+        country: 'London',
+        flag: '🇬🇧',
+        color: '#ff6600',
+        colorLight: '#ff8833',
+        logo: 'https://worldwidefm.net/assets/logo-black.svg',
+        artwork: 'https://worldwidefm.net/assets/logo-black.svg',
+        streams: {
+          high: 'https://worldwidefm.out.airtime.pro/worldwidefm_a',
+          low: 'http://worldwidefm.out.airtime.pro:8000/worldwidefm_a'
         },
         hasSchedule: false
       },
@@ -638,9 +695,11 @@
         id: 'nts_1',
         name: 'NTS 1',
         country: 'London',
+        flag: '🇬🇧',
         color: '#000000',
         colorLight: '#333333',
-        artwork: 'https://www.nts.live/assets/img/nts.png',
+        logo: 'https://media.ntslive.co.uk/resize/800x800/70d6f5ff-56e2-4368-8d12-51aa76de1fce_1724764800.png',
+        artwork: 'https://media.ntslive.co.uk/resize/800x800/70d6f5ff-56e2-4368-8d12-51aa76de1fce_1724764800.png',
         streams: {
           high: 'https://stream-relay-geo.ntslive.net/stream',
           low: 'https://stream-relay-geo.ntslive.net/stream'
@@ -651,9 +710,11 @@
         id: 'nts_2',
         name: 'NTS 2',
         country: 'London',
+        flag: '🇬🇧',
         color: '#000000',
         colorLight: '#333333',
-        artwork: 'https://www.nts.live/assets/img/nts.png',
+        logo: 'https://media.ntslive.co.uk/resize/800x800/70d6f5ff-56e2-4368-8d12-51aa76de1fce_1724764800.png',
+        artwork: 'https://media.ntslive.co.uk/resize/800x800/70d6f5ff-56e2-4368-8d12-51aa76de1fce_1724764800.png',
         streams: {
           high: 'https://stream-relay-geo.ntslive.net/stream2',
           low: 'https://stream-relay-geo.ntslive.net/stream2'
@@ -662,14 +723,16 @@
       },
       {
         id: 'rne_radio3',
-        name: 'RNE Radio 3',
+        name: 'Radio 3',
         country: 'Spain',
+        flag: '🇪🇸',
         color: '#d32f2f',
         colorLight: '#ef5350',
+        logo: 'https://img2.rtve.es/css/rtve.commons.css/rtve_radio/radio3.png',
         artwork: 'https://img2.rtve.es/css/rtve.commons.css/rtve_radio/radio3.png',
         streams: {
-          high: 'https://ztnr.rtve.es/ztnr/rne3.m3u8',
-          low: 'https://195.55.74.217/rtve/radio3.mp3'
+          high: 'https://ztnr.rtve.es/ztnr/6982918.m3u8',
+          low: 'https://dispatcher.rndfnk.com/rtve/radio3/main/mp3/mid'
         },
         hasSchedule: false
       }
@@ -705,16 +768,20 @@
     // Initialize station selector
     function initStationSelector() {
       stationSelector.innerHTML = stations.map(station => `
-        <button class="station-chip" data-id="${station.id}" style="--station-color: ${station.color}">
-          ${station.name}
-        </button>
+        <div class="station-card" data-id="${station.id}" style="--station-color: ${station.color}">
+          <img class="station-card-logo" src="${station.logo}" alt="${station.name}" onerror="this.style.display='none'">
+          <div class="station-card-info">
+            <span class="station-card-name">${station.name}</span>
+            <span class="station-card-country">${station.flag} ${station.country}</span>
+          </div>
+        </div>
       `).join('');
 
-      stationSelector.querySelectorAll('.station-chip').forEach(chip => {
-        chip.addEventListener('click', () => selectStation(chip.dataset.id));
+      stationSelector.querySelectorAll('.station-card').forEach(card => {
+        card.addEventListener('click', () => selectStation(card.dataset.id));
       });
 
-      // Select first station by default
+      // Select saved or first station
       const savedStation = localStorage.getItem('worldradio_station') || stations[0].id;
       selectStation(savedStation);
     }
@@ -734,12 +801,12 @@
       currentStation = station;
       localStorage.setItem('worldradio_station', stationId);
 
-      // Update UI
+      // Update UI colors
       document.documentElement.style.setProperty('--station-color', station.color);
       document.documentElement.style.setProperty('--station-color-light', station.colorLight);
 
-      stationSelector.querySelectorAll('.station-chip').forEach(chip => {
-        chip.classList.toggle('active', chip.dataset.id === stationId);
+      stationSelector.querySelectorAll('.station-card').forEach(card => {
+        card.classList.toggle('active', card.dataset.id === stationId);
       });
 
       // Update artwork and info
@@ -770,6 +837,12 @@
       // Resume playback if was playing
       if (wasPlaying) {
         audio.play();
+      }
+
+      // Scroll selected card into view
+      const activeCard = stationSelector.querySelector('.station-card.active');
+      if (activeCard) {
+        activeCard.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
       }
     }
 
@@ -851,15 +924,16 @@
           recentTracksCard.classList.add('visible');
           recentTracksList.innerHTML = data.recentTracks.map(track => {
             const isFav = favorites.some(f => f.artist === track.artist && f.title === track.title);
+            const trackImage = track.image || currentShow?.image || currentStation.artwork;
             return `
             <div class="recent-track">
-              <img class="recent-track-image" src="${track.image || currentShow?.image || currentStation.artwork}" alt="">
+              <img class="recent-track-image" src="${trackImage}" alt="" onerror="this.src='${currentStation.artwork}'">
               <div class="recent-track-info">
                 <p class="recent-track-title">${track.title}</p>
                 <p class="recent-track-artist">${track.artist}</p>
               </div>
               <div class="recent-track-actions">
-                <button class="recent-track-btn star ${isFav ? 'active' : ''}" data-artist="${track.artist}" data-title="${track.title}" data-image="${track.image || currentShow?.image || currentStation.artwork}" title="Save">
+                <button class="recent-track-btn star ${isFav ? 'active' : ''}" data-artist="${track.artist}" data-title="${track.title}" data-image="${trackImage}" title="Save">
                   <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 </button>
                 <button class="recent-track-btn spotify" data-artist="${track.artist}" data-title="${track.title}" title="Open in Spotify">
@@ -916,8 +990,9 @@
           currentShow = data.currentShow;
           currentShow.formattedTime = formatTimeRange(currentShow.startTime, currentShow.endTime);
           const show = data.currentShow;
+          const showImage = show.image || currentStation.artwork;
           currentShowEl.innerHTML = `
-            <img class="current-show-image" src="${show.image || currentStation.artwork}" alt="">
+            <img class="current-show-image" src="${showImage}" alt="" onerror="this.src='${currentStation.artwork}'">
             <div class="current-show-info">
               <p class="current-show-title">${show.title}</p>
               <p class="current-show-time">${currentShow.formattedTime}</p>
@@ -932,15 +1007,17 @@
         }
 
         if (data.upcomingShows?.length > 0) {
-          upcomingShowsEl.innerHTML = data.upcomingShows.slice(0, 2).map(show => `
+          upcomingShowsEl.innerHTML = data.upcomingShows.slice(0, 2).map(show => {
+            const showImage = show.image || currentStation.artwork;
+            return `
             <div class="upcoming-show">
-              <img class="upcoming-show-image" src="${show.image || currentStation.artwork}" alt="">
+              <img class="upcoming-show-image" src="${showImage}" alt="" onerror="this.src='${currentStation.artwork}'">
               <div class="upcoming-show-info">
                 <p class="upcoming-show-title">${show.title}</p>
                 <p class="upcoming-show-time">${formatTimeRange(show.startTime, show.endTime)}</p>
               </div>
             </div>
-          `).join('');
+          `}).join('');
         }
       } catch (error) {
         scheduleLoading.textContent = 'Unable to load';
@@ -1027,7 +1104,7 @@
       favoritesCard.classList.add('has-items');
       favList.innerHTML = favorites.map((fav, i) => `
         <div class="fav-item">
-          <img class="fav-item-image" src="${fav.image || currentStation?.artwork}" alt="">
+          <img class="fav-item-image" src="${fav.image || currentStation?.artwork}" alt="" onerror="this.style.background='#2a2a4e'">
           <div class="fav-item-info">
             <p class="fav-item-title">${fav.title}</p>
             <p class="fav-item-artist">${fav.artist}</p>
