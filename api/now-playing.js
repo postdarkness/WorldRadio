@@ -133,13 +133,27 @@ async function fetchRadioParadise() {
 
   const data = await response.json();
 
+  // Build cover URL - Radio Paradise uses different formats
+  let coverUrl = null;
+  if (data.cover) {
+    // Cover can be a full path or relative
+    if (data.cover.startsWith('http')) {
+      coverUrl = data.cover;
+    } else {
+      coverUrl = `https://img.radioparadise.com${data.cover.startsWith('/') ? '' : '/'}${data.cover}`;
+    }
+  } else if (data.album && data.asin) {
+    // Fallback to album art via ASIN
+    coverUrl = `https://img.radioparadise.com/covers/l/${data.asin}.jpg`;
+  }
+
   return {
     nowPlaying: data ? {
       artist: data.artist || 'Unknown Artist',
       title: data.title || 'Unknown Track',
-      image: data.cover ? `https://img.radioparadise.com/${data.cover}` : null
+      image: coverUrl
     } : null,
-    recentTracks: [] // Radio Paradise API doesn't provide history in this endpoint
+    recentTracks: []
   };
 }
 
