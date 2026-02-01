@@ -29,9 +29,6 @@ export default async function handler(req, res) {
       case 'rne_radio3':
         result = { nowPlaying: null, recentTracks: [] };
         break;
-      case 'worldwide_fm':
-        result = { nowPlaying: null, recentTracks: [] };
-        break;
       default:
         result = { nowPlaying: null, recentTracks: [] };
     }

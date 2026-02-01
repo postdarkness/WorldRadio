@@ -614,6 +614,9 @@
 
   <script>
     // Station Configuration with working image URLs
+    // Placeholder image as data URI for broken images
+    const PLACEHOLDER = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%232a2a4e" width="100" height="100"/><text x="50" y="55" text-anchor="middle" fill="%23666" font-family="sans-serif" font-size="12">Radio</text></svg>');
+
     const stations = [
       {
         id: 'bbc_6music',
@@ -637,11 +640,11 @@
         flag: '🇫🇷',
         color: '#e84e10',
         colorLight: '#ff7040',
-        logo: 'https://upload.wikimedia.org/wikipedia/fr/thumb/3/35/FIP_logo_2021.svg/200px-FIP_logo_2021.svg.png',
-        artwork: 'https://upload.wikimedia.org/wikipedia/fr/thumb/3/35/FIP_logo_2021.svg/400px-FIP_logo_2021.svg.png',
+        logo: 'https://www.radiofrance.fr/s3/cruiser-production/2021/12/7f044bce-e545-48c3-b872-8f9ea6eb0cb7/200x200_fiplogo.jpg',
+        artwork: 'https://www.radiofrance.fr/s3/cruiser-production/2021/12/7f044bce-e545-48c3-b872-8f9ea6eb0cb7/400x400_fiplogo.jpg',
         streams: {
           high: 'https://icecast.radiofrance.fr/fip-hifi.aac',
-          low: 'https://direct.fipradio.fr/live/fip-midfi.mp3'
+          low: 'https://icecast.radiofrance.fr/fip-midfi.mp3'
         },
         hasSchedule: false
       },
@@ -650,10 +653,10 @@
         name: 'KEXP',
         country: 'Seattle',
         flag: '🇺🇸',
-        color: '#1a1a1a',
-        colorLight: '#444444',
-        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/KEXP_logo.svg/200px-KEXP_logo.svg.png',
-        artwork: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/KEXP_logo.svg/400px-KEXP_logo.svg.png',
+        color: '#f26522',
+        colorLight: '#ff8844',
+        logo: 'https://www.kexp.org/static/assets/img/kexp-og-logo.png',
+        artwork: 'https://www.kexp.org/static/assets/img/kexp-og-logo.png',
         streams: {
           high: 'https://kexp.streamguys1.com/kexp160.aac',
           low: 'https://kexp.streamguys1.com/kexp64.aac'
@@ -670,23 +673,8 @@
         logo: 'https://radioparadise.com/graphics/fb_logo.png',
         artwork: 'https://radioparadise.com/graphics/fb_logo.png',
         streams: {
-          high: 'https://stream-uk1.radioparadise.com/aac-320',
-          low: 'https://stream-uk1.radioparadise.com/aac-128'
-        },
-        hasSchedule: false
-      },
-      {
-        id: 'worldwide_fm',
-        name: 'Worldwide FM',
-        country: 'London',
-        flag: '🇬🇧',
-        color: '#ff6600',
-        colorLight: '#ff8833',
-        logo: 'https://worldwidefm.net/assets/logo-black.svg',
-        artwork: 'https://worldwidefm.net/assets/logo-black.svg',
-        streams: {
-          high: 'https://worldwidefm.out.airtime.pro/worldwidefm_a',
-          low: 'http://worldwidefm.out.airtime.pro:8000/worldwidefm_a'
+          high: 'http://stream.radioparadise.com/aac-320',
+          low: 'http://stream.radioparadise.com/aac-128'
         },
         hasSchedule: false
       },
@@ -697,8 +685,8 @@
         flag: '🇬🇧',
         color: '#000000',
         colorLight: '#333333',
-        logo: 'https://media.ntslive.co.uk/resize/800x800/70d6f5ff-56e2-4368-8d12-51aa76de1fce_1724764800.png',
-        artwork: 'https://media.ntslive.co.uk/resize/800x800/70d6f5ff-56e2-4368-8d12-51aa76de1fce_1724764800.png',
+        logo: 'https://www.nts.live/apple-touch-icon.png',
+        artwork: 'https://www.nts.live/apple-touch-icon.png',
         streams: {
           high: 'https://stream-relay-geo.ntslive.net/stream',
           low: 'https://stream-relay-geo.ntslive.net/stream'
@@ -712,8 +700,8 @@
         flag: '🇬🇧',
         color: '#000000',
         colorLight: '#333333',
-        logo: 'https://media.ntslive.co.uk/resize/800x800/70d6f5ff-56e2-4368-8d12-51aa76de1fce_1724764800.png',
-        artwork: 'https://media.ntslive.co.uk/resize/800x800/70d6f5ff-56e2-4368-8d12-51aa76de1fce_1724764800.png',
+        logo: 'https://www.nts.live/apple-touch-icon.png',
+        artwork: 'https://www.nts.live/apple-touch-icon.png',
         streams: {
           high: 'https://stream-relay-geo.ntslive.net/stream2',
           low: 'https://stream-relay-geo.ntslive.net/stream2'
@@ -727,11 +715,11 @@
         flag: '🇪🇸',
         color: '#d32f2f',
         colorLight: '#ef5350',
-        logo: 'https://img2.rtve.es/css/rtve.commons.css/rtve_radio/radio3.png',
-        artwork: 'https://img2.rtve.es/css/rtve.commons.css/rtve_radio/radio3.png',
+        logo: 'https://www.rtve.es/deportes/benjamin/img/radio3.png',
+        artwork: 'https://www.rtve.es/deportes/benjamin/img/radio3.png',
         streams: {
-          high: 'https://ztnr.rtve.es/ztnr/6982918.m3u8',
-          low: 'https://dispatcher.rndfnk.com/rtve/radio3/main/mp3/mid'
+          high: 'https://rtvelivestream.akamaized.net/rtvesec/rne/rne_r3_main.m3u8',
+          low: 'https://rtvelivestream.akamaized.net/rtvesec/rne/rne_r3_main.m3u8'
         },
         hasSchedule: false
       }
@@ -768,7 +756,7 @@
     function initStationSelector() {
       stationSelector.innerHTML = stations.map(station => `
         <div class="station-card" data-id="${station.id}" style="--station-color: ${station.color}">
-          <img class="station-card-logo" src="${station.logo}" alt="${station.name}" onerror="this.style.display='none'">
+          <img class="station-card-logo" src="${station.logo}" alt="${station.name}" onerror="this.src=PLACEHOLDER">
           <div class="station-card-info">
             <span class="station-card-name">${station.name}</span>
             <span class="station-card-country">${station.flag} ${station.country}</span>
