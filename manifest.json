@@ -9,24 +9,10 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/icon-light.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-dark.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any",
-      "media": "(prefers-color-scheme: dark)"
-    },
-    {
-      "src": "/icon-light.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any",
-      "media": "(prefers-color-scheme: light)"
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
