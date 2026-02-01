@@ -75,21 +75,55 @@ async function fetchFIP() {
 
   const data = await response.json();
 
-  // Current song
-  const now = data.now || data.levels?.[0]?.items?.[0];
-  const prev = data.prev || data.levels?.[0]?.items?.slice(1) || [];
+  // FIP API structure: levels[0].items contains step keys, steps contains track details
+  const steps = data.steps || {};
+  const items = data.levels?.[0]?.items || [];
+
+  // Get current timestamp to find currently playing track
+  const now = Date.now() / 1000;
+
+  // Find the currently playing track (where now is between start and end)
+  let currentTrack = null;
+  const recentTracks = [];
+
+  for (const stepKey of items) {
+    const step = steps[stepKey];
+    if (!step) continue;
+
+    const start = step.start || 0;
+    const end = step.end || 0;
+
+    if (now >= start && now < end) {
+      currentTrack = step;
+    } else if (end < now && recentTracks.length < 3) {
+      recentTracks.push(step);
+    }
+  }
+
+  // If no current track found, use the first item
+  if (!currentTrack && items.length > 0) {
+    currentTrack = steps[items[0]];
+  }
+
+  // Build image URL
+  const getImageUrl = (track) => {
+    if (!track?.visual) return null;
+    const visual = track.visual;
+    if (visual.startsWith('http')) return visual;
+    return `https://www.radiofrance.fr${visual}`;
+  };
 
   return {
-    nowPlaying: now ? {
-      artist: now.performers || now.secondLine || 'Unknown Artist',
-      title: now.title || now.firstLine || 'Unknown Track',
-      image: now.visual ? `https://www.radiofrance.fr${now.visual}` : null
+    nowPlaying: currentTrack ? {
+      artist: currentTrack.authors || currentTrack.performers || 'FIP',
+      title: currentTrack.title || currentTrack.titreAlbum || 'Live',
+      image: getImageUrl(currentTrack)
     } : null,
-    recentTracks: (Array.isArray(prev) ? prev : []).slice(0, 3).map(track => ({
-      artist: track.performers || track.secondLine || 'Unknown Artist',
-      title: track.title || track.firstLine || 'Unknown Track',
-      image: track.visual ? `https://www.radiofrance.fr${track.visual}` : null,
-      label: ''
+    recentTracks: recentTracks.map(track => ({
+      artist: track.authors || track.performers || 'Unknown Artist',
+      title: track.title || 'Unknown Track',
+      image: getImageUrl(track),
+      label: track.titreAlbum || ''
     }))
   };
 }
